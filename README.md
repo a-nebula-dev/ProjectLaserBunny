@@ -79,8 +79,8 @@ Integração com [Stripe](https://stripe.com/) para checkout seguro.
 
 ## 📄 Licença
 
-Este projeto é open-source e está sob a licença [MIT](LICENSE).
+Este projeto é open-source
 
 ---
 
-Desenvolvido por [Studio a laser coelho](https://github.com/seu-usuario).
+Desenvolvido por [Nebula](https://github.com/a-nebula-dev).
