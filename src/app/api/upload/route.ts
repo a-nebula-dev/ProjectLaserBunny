@@ -25,7 +25,11 @@ export async function POST(req: NextRequest) {
       folder: "/laserBunny",
     });
     return NextResponse.json({ url: response.url });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message: unknown }).message)
+        : "Erro desconhecido";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button"; // shadcn/ui
 import { Input } from "../ui/input"; // shadcn/ui
+import Image from "next/image";
 
 export default function ImageKitUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -50,7 +51,7 @@ export default function ImageKitUpload() {
       {url && (
         <div className="flex flex-col items-center gap-2 mt-4">
           <span className="text-green-600">Upload feito com sucesso!</span>
-          <img src={url} alt="Uploaded" className="max-w-xs rounded shadow" />
+          <Image src={url} alt="Uploaded" className="max-w-xs rounded shadow" />
         </div>
       )}
     </form>
