@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "https://ik.imagekit.io/NebulaDev/",
+        hostname: "ik.imagekit.io",
         port: "",
-        pathname: "/**",
+        pathname: "/NebulaDev/**",
       },
     ],
   },

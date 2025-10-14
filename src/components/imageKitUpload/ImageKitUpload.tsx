@@ -1,34 +1,73 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../ui/button"; // shadcn/ui
 import { Input } from "../ui/input"; // shadcn/ui
+import {
+  upload,
+  ImageKitAbortError,
+  ImageKitInvalidRequestError,
+  ImageKitServerError,
+  ImageKitUploadNetworkError,
+} from "@imagekit/next";
 import Image from "next/image";
 
-export default function ImageKitUpload() {
+const ImageKitUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortController = useRef<AbortController | null>(null);
+
+  // Função para buscar parâmetros de autenticação
+  const getAuthParams = async () => {
+    const res = await fetch("/api/upload-auth");
+    if (!res.ok) throw new Error("Falha ao obter autenticação para upload");
+    return res.json();
+  };
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (!file) return;
     setLoading(true);
     setError(null);
+    setProgress(0);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    let authParams;
+    try {
+      authParams = await getAuthParams();
+    } catch (err) {
+      setError("Erro ao autenticar upload.");
+      setLoading(false);
+      return;
+    }
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+    abortController.current = new AbortController();
 
-    const data = await res.json();
-    if (res.ok) {
-      setUrl(data.url);
-    } else {
-      setError(data.error || "Erro ao enviar imagem.");
+    try {
+      const uploadResponse = await upload({
+        ...authParams,
+        file,
+        fileName: file.name,
+        onProgress: (event) => {
+          setProgress((event.loaded / event.total) * 100);
+        },
+        abortSignal: abortController.current.signal,
+      });
+      setUrl(uploadResponse.url ?? null);
+    } catch (error) {
+      if (error instanceof ImageKitAbortError) {
+        setError("Upload cancelado.");
+      } else if (error instanceof ImageKitInvalidRequestError) {
+        setError("Requisição inválida: " + error.message);
+      } else if (error instanceof ImageKitUploadNetworkError) {
+        setError("Erro de rede: " + error.message);
+      } else if (error instanceof ImageKitServerError) {
+        setError("Erro no servidor: " + error.message);
+      } else {
+        setError("Erro ao enviar imagem.");
+      }
     }
     setLoading(false);
   }
@@ -42,18 +81,35 @@ export default function ImageKitUpload() {
       <Input
         type="file"
         accept="image/*"
+        ref={fileInputRef}
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
       <Button type="submit" disabled={!file || loading}>
         {loading ? "Enviando..." : "Enviar"}
       </Button>
+      {loading && (
+        <div className="w-full bg-zinc-200 rounded-full h-2.5 dark:bg-zinc-700">
+          <div
+            className="bg-blue-600 h-2.5 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      )}
       {error && <span className="text-red-500">{error}</span>}
       {url && (
         <div className="flex flex-col items-center gap-2 mt-4">
           <span className="text-green-600">Upload feito com sucesso!</span>
-          <Image src={url} alt="Uploaded" className="max-w-xs rounded shadow" />
+          <Image
+            src={url}
+            alt="Uploaded"
+            width={300}
+            height={300}
+            className="max-w-xs rounded shadow"
+          />
         </div>
       )}
     </form>
   );
-}
+};
+
+export default ImageKitUpload;

@@ -1,4 +1,5 @@
 "use client";
+import { Image } from "@imagekit/next";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ export default function Navbar() {
   const [search, setSearch] = useState("");
 
   return (
-    <nav className="w-full flex items-center justify-between px-6 py-3 bg-white border-b shadow-sm">
+    <nav className="w-full flex items-center justify-between px-6 py-9 bg-white border-b shadow-sm">
       {/* Esquerda: Barra de pesquisa */}
       <form
         className="flex items-center gap-2 w-1/3"
@@ -31,8 +32,19 @@ export default function Navbar() {
 
       {/* Centro: Logo */}
       <div className="flex-1 flex justify-center">
-        <Link href="/" className="text-xl font-bold tracking-tight select-none">
-          Studio a laser coelho
+        <Link
+          href="/"
+          className="text-xl font-bold tracking-tight select-none hover:drop-shadow-amber-950"
+        >
+          <Image
+            urlEndpoint="https://ik.imagekit.io/NebulaDev"
+            src="/laserBunnyLogo.png"
+            alt="Studio a laser coelho"
+            width={70}
+            height={20}
+            className="object-contain"
+            priority
+          />
         </Link>
       </div>
 
@@ -50,11 +62,16 @@ export default function Navbar() {
         ) : (
           <>
             <Link href="/cart">
-              <Button variant="ghost" size="icon" aria-label="Carrinho">
-                <ShoppingCart className="w-5 h-5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Carrinho"
+                className="w-12 h-12 flex items-center justify-center"
+              >
+                <ShoppingCart className="!w-7 !h-7" />
               </Button>
             </Link>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </>
         )}
       </div>
