@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import Carrosel from "@/components/carrosel/Carrosel";
+// import Carrosel from "@/components/carrosel/Carrosel";
 
 export default function Home() {
   return (
@@ -9,7 +9,9 @@ export default function Home() {
       {/* <h1 className="text-2xl font-bold mb-6">Teste de Upload com ImageKit</h1> */}
       {/* <ImageKitUpload /> */}
 
-      <Carrosel />
+      {/* <Carrosel /> */}
+
+      <h1 className="text-primaria"></h1>
     </main>
   );
 }
