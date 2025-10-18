@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="w-full flex items-center justify-between px-6 py-9 bg-white border-b shadow-sm">
+      <nav className="w-full flex items-center justify-between px-6 py-9 bg-geral border-b shadow-sm border-secondaria">
         <form
           className="hidden md:flex items-center gap-2 w-1/3"
           onSubmit={(e) => e.preventDefault()}
@@ -37,13 +37,13 @@ export default function Navbar() {
             placeholder="Buscar produtos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-5 rounded-full border border-gray-300 focus:border-primaria focus:ring-primaria shadow-black shadow-2xl"
+            className="w-full p-5 rounded-full border border-gray-300 focus:border-primaria focus:ring-primaria hover:scale-101 transition-all duration-500  hover:shadow-2xl hover:shadow-black"
           />
           <Button
             type="submit"
             variant="outline"
             size="sm"
-            className="hover:text-white hover:bg-primaria hover:cursor-pointer transition-all duration-500 shadow-2xl shadow-black bg-transparent"
+            className="hover:text-white hover:bg-primaria hover:cursor-pointer transition-all duration-500 hover:shadow-2xl hover:shadow-black bg-transparent"
           >
             Buscar
           </Button>
@@ -91,7 +91,7 @@ export default function Navbar() {
         <div className="flex-1 flex justify-center md:flex-1">
           <Link
             href="/"
-            className="text-xl font-bold tracking-tight select-none hover:shadow-2xl hover:cursor-pointer transition-all duration-500 hover:ring-primaria"
+            className="text-xl font-bold tracking-tight select-none hover:shadow-2xl hover:cursor-pointer transition-all duration-500 hover:ring-primaria hover:scale-105"
           >
             <Image
               urlEndpoint="https://ik.imagekit.io/NebulaDev"
@@ -129,7 +129,7 @@ export default function Navbar() {
                   variant="ghost"
                   size="icon"
                   aria-label="Carrinho"
-                  className="w-12 h-12 flex items-center justify-center text-primaria hover:cursor-pointer hover:bg-primaria hover:text-white transition-all duration-500 shadow-2xl shadow-black"
+                  className="w-12 h-12 flex items-center justify-center text-primaria rounded-2xl hover:cursor-pointer hover:bg-primaria hover:text-white transition-all duration-500 shadow-2xl shadow-black"
                 >
                   <ShoppingCart className="!w-7 !h-7" />
                 </Button>
@@ -147,13 +147,13 @@ export default function Navbar() {
               <Button
                 variant="outline"
                 size="sm"
-                className="shadow-2xl shadow-black hover:cursor-pointer transition-all duration-500 hover:bg-primaria hover:text-white bg-transparent"
+                className=" hover:cursor-pointer hover:bg-primaria hover:text-white bg-transparent transition-all duration-500 hover:shadow-2xl hover:shadow-black hover:scale-[101]"
               >
                 Entrar
               </Button>
             </SignInButton>
           ) : (
-            <div className="scale-110">
+            <div className="scale-110 hover:scale-[115] transition-all duration-500">
               <UserButton />
             </div>
           )}
