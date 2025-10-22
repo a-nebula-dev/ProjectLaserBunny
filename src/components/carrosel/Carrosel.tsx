@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { Image, ImageKitProvider } from "@imagekit/next";
+
 import {
   Carousel,
   CarouselContent,
@@ -8,53 +7,69 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-// import ImageKitUpload from "../components/imageKitUpload/ImageKitUpload";
-export default function Carrosel() {
-  return (
-    <main className="flex flex-col items-center justify-center min-h-screen">
-      {/* <h1 className="text-2xl font-bold mb-6">Teste de Upload com ImageKit</h1> */}
-      {/* <ImageKitUpload /> */}
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
 
-      <ImageKitProvider urlEndpoint="https://ik.imagekit.io/NebulaDev"></ImageKitProvider>
+export default function HeroCarousel() {
+  const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
+
+  const slides = [
+    {
+      id: 1,
+      title: "Novidades da Temporada",
+      description: "Descubra as últimas tendências em decoração",
+    },
+    {
+      id: 2,
+      title: "Presentes Personalizados",
+      description: "Crie momentos únicos com nossos produtos exclusivos",
+    },
+    {
+      id: 3,
+      title: "Promoções Especiais",
+      description: "Aproveite descontos de até 50% em produtos selecionados",
+    },
+  ];
+
+  return (
+    <div className="w-full bg-(--color-geral)">
       <Carousel
-        className="w-full max-w-2xl p-3"
+        plugins={[plugin.current]}
+        className="w-full"
+        onMouseEnter={plugin.current.stop}
+        onMouseLeave={plugin.current.reset}
         opts={{
-          align: "center",
           loop: true,
         }}
       >
         <CarouselContent>
-          <CarouselItem>
-            <div className="flex justify-center">
-              <Image
-                urlEndpoint="https://ik.imagekit.io/NebulaDev"
-                src="/imagem-teste-2_7TgAPzJx3.jpg"
-                alt="Studio a laser coelho"
-                width={120}
-                height={120}
-                priority
-                className="rounded-lg shadow-lg w-full"
-              />
-            </div>
-          </CarouselItem>
-          <CarouselItem>
-            <div className="flex justify-center">
-              <div className="w-[120px] h-[120px] flex items-center justify-center rounded-lg shadow-lg bg-white">
-                teste 2AAAAAAAAAAAAAAAAAAAA
+          {slides.map((slide) => (
+            <CarouselItem key={slide.id}>
+              <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[500px]">
+                <img
+                  src={`/.jpg?height=600&width=1920&query=${encodeURIComponent(
+                    slide.title
+                  )}`}
+                  alt={slide.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                  <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 md:pb-16">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-3 md:mb-4 transition-all duration-300">
+                      {slide.title}
+                    </h2>
+                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 transition-all duration-300">
+                      {slide.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </CarouselItem>
-          <CarouselItem>
-            <div className="flex justify-center">
-              <div className="w-[120px] h-[120px] flex items-center justify-center rounded-lg shadow-lg bg-white">
-                teste 3AAAAAAAAAAAAAAA
-              </div>
-            </div>
-          </CarouselItem>
+            </CarouselItem>
+          ))}
         </CarouselContent>
-        <CarouselPrevious className="hover:cursor-pointer" />
-        <CarouselNext className="hover:cursor-pointer" />
+        <CarouselPrevious className="left-2 sm:left-4 md:left-6 bg-white/80 hover:bg-white text-(--color-primaria) border-none transition-all duration-300" />
+        <CarouselNext className="right-2 sm:right-4 md:right-6 bg-white/80 hover:bg-white text-(--color-primaria) border-none transition-all duration-300" />
       </Carousel>
-    </main>
+    </div>
   );
 }
