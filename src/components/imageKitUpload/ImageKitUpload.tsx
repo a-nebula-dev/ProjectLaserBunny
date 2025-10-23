@@ -23,7 +23,7 @@ const ImageKitUpload = () => {
   // Função para buscar parâmetros de autenticação
   const getAuthParams = async () => {
     const res = await fetch("/api/upload-auth");
-    if (!res.ok) throw new Error("Falha ao obter autenticação para upload");
+    if (!res.ok) throw new Error("Falha ao obter autenticação para download");
     return res.json();
   };
 

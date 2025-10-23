@@ -29,8 +29,8 @@ export default function Navbar() {
     { name: "Novidades", href: "/categoria/novidades" },
     { name: "Decoração", href: "/categoria/decoracao" },
     { name: "Presentes", href: "/categoria/presentes" },
-    { name: "Personalizados", href: "/categoria/personalizados" },
     { name: "Promoções", href: "/categoria/promocoes" },
+    { name: "Personalizados", href: "/categoria/personalizados" },
   ];
 
   return (
@@ -211,14 +211,14 @@ export default function Navbar() {
         </div>
       </nav>
 
-      <div className="w-full bg-white border-b border-gray-200 py-2">
+      <div className="w-full bg-primaria border-b border-gray-200 py-2">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden md:block">
           <ul className="flex items-center justify-start md:justify-center gap-4 sm:gap-6 lg:gap-8 py-3 sm:py-4 overflow-x-auto scrollbar-hide">
             {categories.map((category) => (
               <li key={category.href} className="flex-shrink-0">
                 <Link
                   href={category.href}
-                  className="text-(--color-primaria) hover:text-(--color-secondaria) font-medium transition-all duration-300 text-xs sm:text-sm lg:text-base whitespace-nowrap"
+                  className="text-secondaria hover:text-white font-medium transition-all duration-300 text-xs sm:text-sm lg:text-base whitespace-nowrap"
                 >
                   {category.name}
                 </Link>

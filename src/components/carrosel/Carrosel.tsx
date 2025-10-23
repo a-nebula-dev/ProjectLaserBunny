@@ -9,6 +9,13 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { Image, ImageKitProvider } from "@imagekit/next";
+
+const getAuthParams = async () => {
+  const res = await fetch("/api/upload-auth");
+  if (!res.ok) throw new Error("Falha ao obter autenticação para upload");
+  return res.json();
+};
 
 export default function HeroCarousel() {
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
@@ -18,6 +25,7 @@ export default function HeroCarousel() {
       id: 1,
       title: "Novidades da Temporada",
       description: "Descubra as últimas tendências em decoração",
+      src: "banner2.png",
     },
     {
       id: 2,
@@ -45,14 +53,13 @@ export default function HeroCarousel() {
         <CarouselContent>
           {slides.map((slide) => (
             <CarouselItem key={slide.id}>
-              <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[500px]">
-                <img
-                  src={`/.jpg?height=600&width=1920&query=${encodeURIComponent(
-                    slide.title
-                  )}`}
-                  alt={slide.title}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+                <ImageKitProvider
+                  urlEndpoint="https://ik.imagekit.io/NebulaDev/"
+                  transformationPosition="path"
+                >
+                  <Image src={slide.src!} fill alt={slide.title} />
+                </ImageKitProvider>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                   <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 md:pb-16">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-3 md:mb-4 transition-all duration-300">
