@@ -23,19 +23,22 @@ export default function HeroCarousel() {
   const slides = [
     {
       id: 1,
-      title: "Novidades da Temporada",
-      description: "Descubra as últimas tendências em decoração",
+      title: "Itens Religiosos",
+      description: "Demonstre sua fé com nossos itens exclusivos",
       src: "banner2.png",
     },
     {
       id: 2,
       title: "Presentes Personalizados",
-      description: "Crie momentos únicos com nossos produtos exclusivos",
+      description:
+        "Torne cada ocasião inesquecível com presentes feitos sob medida",
+      src: "banner3.jpg",
     },
     {
       id: 3,
       title: "Promoções Especiais",
       description: "Aproveite descontos de até 50% em produtos selecionados",
+      src: "banner4.png",
     },
   ];
 
