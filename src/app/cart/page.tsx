@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function CartPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
 

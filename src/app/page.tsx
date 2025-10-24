@@ -2,68 +2,68 @@
 import React from "react";
 
 import Carrosel from "@/components/carrosel/Carrosel";
-import ProductCard from "@/components/ProductCard/ProductCard";
+// import ProductCard from "@/components/ProductCard/ProductCard";
 import Footer from "@/components/Footer/Footer";
 
 export default function Home() {
-  const products = [
-    {
-      id: 1,
-      name: "Produto Artesanal 1",
-      price: 89.9,
-      image: "/handmade-craft-product.jpg",
-      category: "Novidades",
-    },
-    {
-      id: 2,
-      name: "Decoração Especial",
-      price: 129.9,
-      image: "/home-decoration-item.jpg",
-      category: "Decoração",
-    },
-    {
-      id: 3,
-      name: "Presente Único",
-      price: 159.9,
-      image: "/unique-gift-box.jpg",
-      category: "Presentes",
-    },
-    {
-      id: 4,
-      name: "Item Personalizado",
-      price: 199.9,
-      image: "/personalized-item.jpg",
-      category: "Personalizados",
-    },
-    {
-      id: 5,
-      name: "Oferta Especial",
-      price: 79.9,
-      image: "/special-offer-product.jpg",
-      category: "Promoções",
-    },
-    {
-      id: 6,
-      name: "Artesanato Premium",
-      price: 249.9,
-      image: "/premium-handcraft.jpg",
-      category: "Novidades",
-    },
-    {
-      id: 7,
-      name: "Decoração Moderna",
-      price: 169.9,
-      image: "/modern-decor.jpg",
-      category: "Decoração",
-    },
-    {
-      id: 8,
-      name: "Kit Presente",
-      price: 299.9,
-      image: "/gift-set-bundle.jpg",
-      category: "Presentes",
-    },
-  ];
+  // const products = [
+  //   {
+  //     id: 1,
+  //     name: "Produto Artesanal 1",
+  //     price: 89.9,
+  //     image: "/handmade-craft-product.jpg",
+  //     category: "Novidades",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Decoração Especial",
+  //     price: 129.9,
+  //     image: "/home-decoration-item.jpg",
+  //     category: "Decoração",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Presente Único",
+  //     price: 159.9,
+  //     image: "/unique-gift-box.jpg",
+  //     category: "Presentes",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Item Personalizado",
+  //     price: 199.9,
+  //     image: "/personalized-item.jpg",
+  //     category: "Personalizados",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Oferta Especial",
+  //     price: 79.9,
+  //     image: "/special-offer-product.jpg",
+  //     category: "Promoções",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Artesanato Premium",
+  //     price: 249.9,
+  //     image: "/premium-handcraft.jpg",
+  //     category: "Novidades",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "Decoração Moderna",
+  //     price: 169.9,
+  //     image: "/modern-decor.jpg",
+  //     category: "Decoração",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "Kit Presente",
+  //     price: 299.9,
+  //     image: "/gift-set-bundle.jpg",
+  //     category: "Presentes",
+  //   },
+  // ];
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
