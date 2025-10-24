@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Product from "@/lib/models/product";
-import Category from "@/lib/models/category";
+import Product from "@/lib/models/Product";
+import Category from "@/lib/models/Category";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 

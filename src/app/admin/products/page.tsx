@@ -106,17 +106,14 @@ export default function ProductsPage() {
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct?._id) return;
+    if (!editingProduct?.id) return;
 
     try {
-      const response = await fetch(
-        `/api/admin/products/${editingProduct._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`/api/admin/products/${editingProduct.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       if (!response.ok) throw new Error("Failed to update product");
 
@@ -355,7 +352,7 @@ export default function ProductsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.map((product) => (
           <Card
-            key={product._id}
+            key={product.id?.toString() ?? product.id}
             className="border-[var(--color-primaria)]/20 overflow-hidden hover:shadow-lg transition-shadow"
           >
             <div className="aspect-square relative overflow-hidden bg-[var(--color-geral)]">
@@ -395,7 +392,7 @@ export default function ProductsPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setDeleteProductId(product._id!)}
+                  onClick={() => setDeleteProductId(product.id)}
                   className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
                 >
                   <Trash2 className="mr-2 h-3 w-3" />

@@ -15,7 +15,7 @@ export interface CartItem extends Product {
 }
 
 export interface ProductDB {
-  _id?: Types.ObjectId | string;
+  id?: number | string;
   name: string;
   price: number;
   image: string;

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { connectDB } from "@/lib/mongoose";
-import Category from "@/lib/models/category";
+import Category from "@/lib/models/Category";
 import mongoose from "mongoose";
 
 // DELETE category

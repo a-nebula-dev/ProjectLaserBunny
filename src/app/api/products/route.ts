@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongoose";
-import Product from "@/lib/models/product";
+import Product from "@/lib/models/Product";
 
 export async function GET() {
   try {
@@ -10,13 +10,13 @@ export async function GET() {
     // Transform _id to id for frontend compatibility
     const transformedProducts = products.map((product) => ({
       ...product,
-      id: product.id.toString(),
-      _id: product.id.toString(),
+      id: product._id?.toString() ?? "",
+      _id: product._id?.toString() ?? "",
     }));
 
     return NextResponse.json(transformedProducts);
   } catch (error) {
-    console.error("[v0] Error fetching products:", error);
+    console.error("[GET /api/products] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 }

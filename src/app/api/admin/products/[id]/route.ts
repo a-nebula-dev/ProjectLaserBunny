@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { connectDB } from "@/lib/mongoose";
-import Product from "@/lib/models/product";
+import Product from "@/lib/models/Product";
 import mongoose from "mongoose";
 
 // GET single product
