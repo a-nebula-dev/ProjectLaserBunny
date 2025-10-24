@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Category } from "@/types/Product";
+import type { Category } from "../../../types/Product";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
