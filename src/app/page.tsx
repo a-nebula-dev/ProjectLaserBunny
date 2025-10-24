@@ -72,7 +72,7 @@ export default function Home() {
 
       <Carrosel />
 
-      <div className="min-h-screen bg-white">
+      <div className="min-h-16 bg-white">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
           <div className="mb-8 sm:mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--color-primaria)] mb-3">
@@ -83,16 +83,10 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                name={product.name}
-                price={product.price}
-                image={product.image}
-                category={product.category}
-              />
-            ))}
+          <div className="text-center py-12 bg-white rounded-lg border border-primaria/20">
+            <p className="text-primaria/70 text-lg mb-4 mx-auto w-full">
+              Nenhum produto encontrado
+            </p>
           </div>
         </main>
       </div>

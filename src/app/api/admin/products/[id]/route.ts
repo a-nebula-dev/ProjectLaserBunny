@@ -26,7 +26,7 @@ export async function GET(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ ...product, _id: product._id.toString() });
+    return NextResponse.json({ ...product, _id: product.id.toString() });
   } catch (error) {
     console.error("[v0] Error fetching product:", error);
     return NextResponse.json(

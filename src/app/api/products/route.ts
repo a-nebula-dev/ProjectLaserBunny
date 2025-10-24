@@ -10,8 +10,8 @@ export async function GET() {
     // Transform _id to id for frontend compatibility
     const transformedProducts = products.map((product) => ({
       ...product,
-      id: product._id?.toString() ?? "",
-      _id: product._id?.toString() ?? "",
+      id: product.id?.toString() ?? "",
+      _id: product.id?.toString() ?? "",
     }));
 
     return NextResponse.json(transformedProducts);

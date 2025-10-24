@@ -26,11 +26,11 @@ export default function Navbar() {
   }, []);
 
   const categories = [
-    { name: "Novidades", href: "/categoria/novidades" },
-    { name: "Decoração", href: "/categoria/decoracao" },
-    { name: "Presentes", href: "/categoria/presentes" },
-    { name: "Promoções", href: "/categoria/promocoes" },
-    { name: "Personalizados", href: "/categoria/personalizados" },
+    { name: "Novidades", href: "/products" },
+    { name: "Decoração", href: "/products" },
+    { name: "Presentes", href: "/products" },
+    { name: "Promoções", href: "/products" },
+    { name: "Personalizados", href: "/products" },
   ];
 
   return (
