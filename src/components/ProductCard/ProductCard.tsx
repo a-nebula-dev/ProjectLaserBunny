@@ -3,9 +3,10 @@
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Image } from "@imagekit/next";
 
 interface ProductCardProps {
-  id: string;
+  id: number | string;
   name: string;
   price: number;
   image: string;
@@ -23,10 +24,14 @@ export default function ProductCard({
     <Link href={`/products/${encodeURIComponent(id)}`}>
       <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-primaria/10 cursor-pointer">
         <div className="relative aspect-square overflow-hidden bg-geral">
-          <img
-            src={image || "/placeholder.svg"}
-            alt={name}
-            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
+          <Image
+            urlEndpoint="https://ik.imagekit.io/NebulaDev"
+            src="/default-image.jpg"
+            alt="Studio a laser coelho"
+            width={50}
+            height={50}
+            className="object-contain w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16"
+            priority
           />
           <div className="absolute top-3 right-3 bg-secondaria text-primaria text-xs font-semibold px-3 py-1 rounded-full">
             {category}

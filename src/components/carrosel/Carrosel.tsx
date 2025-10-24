@@ -11,12 +11,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { Image, ImageKitProvider } from "@imagekit/next";
 
-const getAuthParams = async () => {
-  const res = await fetch("/api/upload-auth");
-  if (!res.ok) throw new Error("Falha ao obter autenticação para upload");
-  return res.json();
-};
-
 export default function HeroCarousel() {
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 

@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import type { ProductDB, Category } from "@/types/product";
+import type { ProductDB, Category } from "@/types/Product";
 
 export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -261,7 +261,7 @@ export default function ProductsPage() {
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
-                    id={product.id || ""}
+                    id={product.id}
                     name={product.name}
                     price={product.price}
                     image={product.image}

@@ -38,7 +38,7 @@ const ImageKitUpload = () => {
     try {
       authParams = await getAuthParams();
     } catch (err) {
-      setError("Erro ao autenticar upload.");
+      setError("Erro ao autenticar upload." + err);
       setLoading(false);
       return;
     }

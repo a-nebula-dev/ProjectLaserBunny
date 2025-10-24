@@ -1,7 +1,6 @@
-import { Types } from "mongoose";
-
 export interface Product {
-  id: number | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  id: any;
   name: string;
   price: number;
   image: string;
@@ -13,9 +12,9 @@ export interface Product {
 export interface CartItem extends Product {
   quantity: number;
 }
-
 export interface ProductDB {
-  id?: number | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  id: any;
   name: string;
   price: number;
   image: string;

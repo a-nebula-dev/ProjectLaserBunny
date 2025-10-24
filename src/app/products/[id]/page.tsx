@@ -1,5 +1,6 @@
 "use client";
 
+import { Image } from "@imagekit/next";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import {
   Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { ProductDB } from "@/types/product";
+import type { ProductDB } from "@/types/Product";
 
 export default function ProductDetailPage({
   params,
@@ -114,7 +115,7 @@ export default function ProductDetailPage({
             {product.name}
           </h1>
           <p className="text-sm text-primaria/60">
-            Cod. do Produto: {product.id?.slice(-6).toUpperCase()}
+            Cod. do Produto: {product.id}
           </p>
         </div>
 
@@ -132,10 +133,14 @@ export default function ProductDetailPage({
                       : "border-primaria/20 hover:border-primaria/40"
                   }`}
                 >
-                  <img
-                    src={img || "/placeholder.svg"}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
+                  <Image
+                    urlEndpoint="https://ik.imagekit.io/NebulaDev"
+                    src="/laserBunnyLogo.png"
+                    alt="Studio a laser coelho"
+                    width={50}
+                    height={50}
+                    className="object-contain w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16"
+                    priority
                   />
                 </button>
               ))}

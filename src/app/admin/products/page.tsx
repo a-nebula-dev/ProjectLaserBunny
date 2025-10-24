@@ -34,7 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { ProductDB, Category } from "@/types/product";
+import type { ProductDB, Category } from "@/types/Product";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductDB[]>([]);
