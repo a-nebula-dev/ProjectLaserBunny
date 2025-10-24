@@ -6,12 +6,12 @@ export function transformProduct(
   if (Array.isArray(product)) {
     return product.map((p) => ({
       ...p,
-      id: p._id ? p._id.toString() : "",
+      id: p.id ? p.id.toString() : "",
     }));
   }
 
   return {
     ...product,
-    id: product._id ? product._id.toString() : "",
+    id: product.id ? product.id.toString() : "",
   };
 }
