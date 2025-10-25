@@ -1,4 +1,4 @@
-import type { ProductDB, Product } from "@/types/Product";
+import type { ProductDB, Product } from "@/types/product";
 
 export function transformProduct(
   product: ProductDB | ProductDB[]

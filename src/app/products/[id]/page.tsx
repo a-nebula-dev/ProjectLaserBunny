@@ -15,7 +15,7 @@ import {
   Shield,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { ProductDB } from "@/types/Product";
+import type { ProductDB } from "@/types/product";
 
 export default function ProductDetailPage({
   params,

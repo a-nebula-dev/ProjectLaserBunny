@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import type { ProductDB, Category } from "@/types/Product";
+import type { ProductDB, Category } from "@/types/product";
 
 export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
