@@ -8,10 +8,10 @@ import {
 // GET - Buscar seção por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const section = await getSectionById(id);
 
     if (!section) {
@@ -39,10 +39,10 @@ export async function GET(
 // PUT - Atualizar seção
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     const updatedSection = await updateSection(id, body);
@@ -73,10 +73,10 @@ export async function PUT(
 // DELETE - Remover seção
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const deleted = await deleteSection(id);
 
     if (!deleted) {

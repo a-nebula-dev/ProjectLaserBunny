@@ -8,7 +8,7 @@ import {
 // GET - Buscar produto por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
@@ -39,10 +39,10 @@ export async function GET(
 // PUT - Atualizar produto
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     // Log incoming data for debugging when clients receive unexpected responses
@@ -85,10 +85,10 @@ export async function PUT(
 // DELETE - Remover produto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const deleted = await deleteProduct(id);
 
     if (!deleted) {
