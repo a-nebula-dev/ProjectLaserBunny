@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,6 +12,9 @@ import { Separator } from "@/components/ui/separator";
 import type { ProductDB, Category } from "@/types/product";
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [selectedRating, setSelectedRating] = useState("all");
@@ -29,12 +33,13 @@ export default function ProductsPage() {
 
         if (productsRes.ok) {
           const productsData = await productsRes.json();
-          setProducts(productsData);
+          // API returns { success, data, count }
+          setProducts(productsData?.data || []);
         }
 
         if (categoriesRes.ok) {
           const categoriesData = await categoriesRes.json();
-          setCategories(categoriesData);
+          setCategories(categoriesData?.data || []);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -45,6 +50,17 @@ export default function ProductsPage() {
 
     fetchData();
   }, []);
+
+  // Set category from query param if present
+  useEffect(() => {
+    if (categoryParam) {
+      // Find category by slug
+      const category = categories.find((c) => c.slug === categoryParam);
+      if (category) {
+        setSelectedCategory(category.name);
+      }
+    }
+  }, [categoryParam, categories]);
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =

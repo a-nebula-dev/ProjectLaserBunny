@@ -14,6 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import CategoriesNav from "./CategoriesNav";
 
 export default function Navbar() {
   const { isSignedIn } = useUser();
@@ -24,14 +25,6 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const categories = [
-    { name: "Novidades", href: "/products" },
-    { name: "Decoração", href: "/products" },
-    { name: "Presentes", href: "/products" },
-    { name: "Promoções", href: "/products" },
-    { name: "Personalizados", href: "/products" },
-  ];
 
   return (
     <>
@@ -106,16 +99,10 @@ export default function Navbar() {
                   <h3 className="text-sm font-semibold text-(--color-primaria) mb-2">
                     Categorias
                   </h3>
-                  {categories.map((category) => (
-                    <Link
-                      key={category.href}
-                      href={category.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-(--color-primaria) hover:text-(--color-secondaria) font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-(--color-secondaria)/10"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
+                  <CategoriesNav
+                    mobile
+                    onLinkClick={() => setMobileMenuOpen(false)}
+                  />
                 </div>
 
                 {!isSignedIn && (
@@ -213,18 +200,7 @@ export default function Navbar() {
 
       <div className="w-full bg-primaria border-b border-gray-200 py-2">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden md:block">
-          <ul className="flex items-center justify-start md:justify-center gap-4 sm:gap-6 lg:gap-8 py-3 sm:py-4 overflow-x-auto scrollbar-hide">
-            {categories.map((category) => (
-              <li key={category.href} className="flex-shrink-0">
-                <Link
-                  href={category.href}
-                  className="text-secondaria hover:text-white font-medium transition-all duration-300 text-xs sm:text-sm lg:text-base whitespace-nowrap"
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <CategoriesNav />
         </nav>
       </div>
 

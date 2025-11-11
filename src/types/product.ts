@@ -1,9 +1,9 @@
 export interface Product {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  id: any;
+  id: string;
   name: string;
   price: number;
   image: string;
+  images?: string[]; // Múltiplas imagens
   category: string;
   description?: string;
   stock?: number;
@@ -13,11 +13,11 @@ export interface CartItem extends Product {
   quantity: number;
 }
 export interface ProductDB {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  id: any;
+  id: string;
   name: string;
   price: number;
   image: string;
+  images?: string[]; // Múltiplas imagens
   category: string;
   description?: string;
   stock?: number;
@@ -32,4 +32,16 @@ export interface Category {
   slug: string;
   description?: string;
   createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface Section {
+  _id?: string;
+  title: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  order?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

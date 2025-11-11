@@ -3,7 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar/Navbar";
+import AppNavbar from "@/components/AppNavbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,9 +22,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
+  // Alternativa SSR: usePathname() só funciona em client components
+  const showNavbar = !pathname.startsWith("/admin");
   return (
     <ClerkProvider localization={ptBR}>
       <html lang="pt-br">
@@ -32,7 +36,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           {/* Navbar completa com Clerk */}
-          <Navbar />
+          <AppNavbar />
           {children}
         </body>
       </html>

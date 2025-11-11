@@ -1,75 +1,34 @@
 "use client";
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import Carrosel from "@/components/carrosel/Carrosel";
-// import ProductCard from "@/components/ProductCard/ProductCard";
 import Footer from "@/components/Footer/Footer";
+import type { Product } from "@/types/product";
 
 export default function Home() {
-  // const products = [
-  //   {
-  //     id: 1,
-  //     name: "Produto Artesanal 1",
-  //     price: 89.9,
-  //     image: "/handmade-craft-product.jpg",
-  //     category: "Novidades",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Decoração Especial",
-  //     price: 129.9,
-  //     image: "/home-decoration-item.jpg",
-  //     category: "Decoração",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Presente Único",
-  //     price: 159.9,
-  //     image: "/unique-gift-box.jpg",
-  //     category: "Presentes",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Item Personalizado",
-  //     price: 199.9,
-  //     image: "/personalized-item.jpg",
-  //     category: "Personalizados",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Oferta Especial",
-  //     price: 79.9,
-  //     image: "/special-offer-product.jpg",
-  //     category: "Promoções",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Artesanato Premium",
-  //     price: 249.9,
-  //     image: "/premium-handcraft.jpg",
-  //     category: "Novidades",
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "Decoração Moderna",
-  //     price: 169.9,
-  //     image: "/modern-decor.jpg",
-  //     category: "Decoração",
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "Kit Presente",
-  //     price: 299.9,
-  //     image: "/gift-set-bundle.jpg",
-  //     category: "Presentes",
-  //   },
-  // ];
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+        if (response.ok) {
+          const data = await response.json();
+          // Get first 8 products for carousel
+          setProducts(data.data.slice(0, 8));
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">
-      {/* <h1 className="text-2xl font-bold mb-6">Teste de Upload com ImageKit</h1> */}
-      {/* <ImageKitUpload /> */}
-
       <Carrosel />
 
       <div className="min-h-16 bg-white">
@@ -83,11 +42,19 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="text-center py-12 bg-white rounded-lg border border-primaria/20">
-            <p className="text-primaria/70 text-lg mb-4 mx-auto w-full">
-              Nenhum produto encontrado
-            </p>
-          </div>
+          {loading ? (
+            <div className="text-center py-12 bg-white rounded-lg border border-primaria/20">
+              <p className="text-primaria/70 text-lg">Carregando produtos...</p>
+            </div>
+          ) : products.length > 0 ? (
+            <Carrosel />
+          ) : (
+            <div className="text-center py-12 bg-white rounded-lg border border-primaria/20">
+              <p className="text-primaria/70 text-lg mb-4 mx-auto w-full">
+                Nenhum produto encontrado
+              </p>
+            </div>
+          )}
         </main>
       </div>
       <Footer />

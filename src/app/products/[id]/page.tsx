@@ -38,7 +38,7 @@ export default function ProductDetailPage({
         const response = await fetch(`/api/products/${productId}`);
         if (response.ok) {
           const data = await response.json();
-          setProduct(data);
+          setProduct(data.data);
         } else {
           toast.error("Produto não encontrado");
           router.push("/products");
