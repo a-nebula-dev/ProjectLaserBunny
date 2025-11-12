@@ -151,38 +151,99 @@ export async function DELETE(
           return false;
         }
 
-        // Derive the fileId/publicId from the image URL
-        let fileId = null;
-        try {
-          const u = new URL(imageUrl);
-          // If URL starts with configured endpoint, strip it
-          if (urlEndpoint && imageUrl.startsWith(urlEndpoint)) {
-            fileId = imageUrl.substring(urlEndpoint.length);
-          } else {
-            fileId = u.pathname.replace(/^\/+/, "");
+        const authHeader = `Basic ${Buffer.from(`${privateKey}:`).toString(
+          "base64"
+        )}`;
+
+        // Normalize URL/path so we can find the underlying ImageKit fileId via the media API.
+        const getNormalizedPath = () => {
+          try {
+            const parsed = new URL(imageUrl);
+            if (urlEndpoint && imageUrl.startsWith(urlEndpoint)) {
+              return parsed.pathname.replace(/^\/+/, "");
+            }
+            return parsed.pathname.replace(/^\/+/, "");
+          } catch (err) {
+            return imageUrl.replace(/^\/+/, "");
           }
-        } catch (err) {
-          // Not a full URL, maybe already a fileId
-          fileId = imageUrl;
+        };
+
+        const normalizedPath = getNormalizedPath().split("?")[0];
+        const baseUrl = "https://api.imagekit.io/v1/files";
+
+        const searchQueries: string[] = [];
+        if (normalizedPath) {
+          const cleanPath = normalizedPath.replace(/^\/+/, "");
+          const fileName = cleanPath.split("/").pop();
+          if (fileName) {
+            searchQueries.push(`name="${fileName}"`);
+          }
         }
 
-        // Remove query params if any
-        fileId = fileId.split("?")[0];
+        // Deduplicate queries to avoid redundant calls.
+        const uniqueQueries = Array.from(new Set(searchQueries));
+
+        let fileId: string | null = null;
+        for (const query of uniqueQueries) {
+          try {
+            const searchUrl = `${baseUrl}?searchQuery=${encodeURIComponent(
+              query
+            )}&limit=1`;
+            const lookup = await fetch(searchUrl, {
+              headers: {
+                Authorization: authHeader,
+              },
+            });
+
+            if (!lookup.ok) {
+              const detail = await lookup.text();
+              console.debug(
+                `[DELETE] lookup sem resultado para query ${query}:`,
+                lookup.status,
+                detail
+              );
+              continue;
+            }
+
+            const result = await lookup.json();
+            if (Array.isArray(result) && result.length > 0) {
+              const item = result[0];
+              if (item?.fileId) {
+                fileId = item.fileId as string;
+                break;
+              }
+            }
+          } catch (lookupErr) {
+            console.log(
+              `[DELETE] Erro ao buscar fileId no ImageKit (${query}):`,
+              lookupErr
+            );
+          }
+        }
 
         if (!fileId) {
-          console.log("[DELETE] Não foi possível extrair fileId de:", imageUrl);
+          const maybeFileId = normalizedPath.replace(/\?.*$/, "");
+          if (/^[a-f0-9]{24}$/i.test(maybeFileId)) {
+            fileId = maybeFileId;
+          }
+        }
+
+        if (!fileId) {
+          console.log(
+            "[DELETE] Não foi possível resolver fileId para imagem:",
+            imageUrl
+          );
           return false;
         }
 
         const apiUrl = `https://api.imagekit.io/v1/files/${encodeURIComponent(
           fileId
         )}`;
-        const auth = Buffer.from(`${privateKey}:`).toString("base64");
 
         const res = await fetch(apiUrl, {
           method: "DELETE",
           headers: {
-            Authorization: `Basic ${auth}`,
+            Authorization: authHeader,
           },
         });
 

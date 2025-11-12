@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import Footer from "@/components/Footer/Footer";
 import ProductCard from "@/components/ProductCard/ProductCard";
 import type { ProductDB } from "@/types/product";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 export default function ProductDetailPage({
   params,
@@ -32,6 +33,8 @@ export default function ProductDetailPage({
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [similarProducts, setSimilarProducts] = useState<ProductDB[]>([]);
+  const { isLoaded: isUserLoaded, isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -83,6 +86,30 @@ export default function ProductDetailPage({
 
   const handleAddToCart = () => {
     if (!product) return;
+
+    if (!isUserLoaded) {
+      toast.info("Verificando sua sessão. Tente novamente em instantes.");
+      return;
+    }
+
+    if (!isSignedIn) {
+      toast.warning(
+        "Entre ou crie uma conta para adicionar produtos ao carrinho."
+      );
+      if (typeof window !== "undefined") {
+        const returnUrl = window.location.href;
+        if (openSignIn) {
+          openSignIn({
+            redirectUrl: returnUrl,
+            afterSignInUrl: returnUrl,
+            afterSignUpUrl: returnUrl,
+          });
+        } else {
+          router.push("/sign-in");
+        }
+      }
+      return;
+    }
 
     for (let i = 0; i < quantity; i++) {
       addItem({
@@ -174,7 +201,7 @@ export default function ProductDetailPage({
                 <button
                   key={index}
                   onClick={() => setSelectedImageIndex(index)}
-                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
                     currentImageIndex === index
                       ? "border-secondaria shadow-md scale-105"
                       : "border-primaria/20 hover:border-primaria/40"
@@ -185,7 +212,9 @@ export default function ProductDetailPage({
                     src={img}
                     alt={`${product.name} - Imagem ${index + 1}`}
                     fill
+                    sizes="80px"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </button>
               ))}

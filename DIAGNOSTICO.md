@@ -27,6 +27,7 @@
 - - src/app/products/[id]/page.tsx (detalhe com preços)
 - - src/app/cart/page.tsx (carrinho Zustand)
 - - src/app/page.tsx (home com destaque - PRECISA DADOS DO BD)
+- - Upload multi-imagens com ImageKit (corrigido "Missing public key" no admin)
 -
 - ⚠️ NÃO FUNCIONAL:
 - - Checkout (arquivo não existe)

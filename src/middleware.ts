@@ -5,6 +5,20 @@ import { NextResponse } from "next/server";
 export default clerkMiddleware(async (auth, request: NextRequest) => {
   const pathname = request.nextUrl.pathname;
 
+  const isCustomerProtectedRoute =
+    pathname.startsWith("/cart") || pathname.startsWith("/checkout");
+
+  if (isCustomerProtectedRoute) {
+    const authResponse = await auth();
+    if (!authResponse.userId) {
+      const redirectUrl = new URL("/", request.url);
+      redirectUrl.searchParams.set("auth", "signin");
+      const returnPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+      redirectUrl.searchParams.set("returnUrl", returnPath || "/");
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
   // Proteger rotas /admin (exceto /admin-login)
   if (pathname.startsWith("/admin") && pathname !== "/admin-login") {
     const authCookie = request.cookies.get("admin_auth");

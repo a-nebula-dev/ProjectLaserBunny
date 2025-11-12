@@ -35,7 +35,19 @@ export default function ImageKitMultiUpload({
   const getAuthParams = async () => {
     const res = await fetch("/api/upload-auth");
     if (!res.ok) throw new Error("Falha ao obter autenticação para upload");
-    return res.json();
+
+    const payload = await res.json();
+    if (!payload?.success || !payload?.data) {
+      throw new Error("Resposta inválida ao obter autenticação");
+    }
+
+    const { token, signature, expire, publicKey, urlEndpoint } = payload.data;
+
+    if (!publicKey || !token || !signature || !expire) {
+      throw new Error("Parâmetros de upload incompletos");
+    }
+
+    return { token, signature, expire, publicKey, urlEndpoint };
   };
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -67,7 +79,10 @@ export default function ImageKitMultiUpload({
 
     try {
       const uploadResponse = await upload({
-        ...authParams,
+        token: authParams.token,
+        signature: authParams.signature,
+        expire: authParams.expire,
+        publicKey: authParams.publicKey,
         file,
         fileName: `product-${Date.now()}-${Math.random()
           .toString(36)
