@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { type Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
@@ -67,7 +68,9 @@ export default function RootLayout({
           >
             {/* Navbar completa com Clerk */}
             <AppNavbar />
-            <AuthModalTrigger />
+            <Suspense fallback={null}>
+              <AuthModalTrigger />
+            </Suspense>
             {children}
           </body>
         </html>
