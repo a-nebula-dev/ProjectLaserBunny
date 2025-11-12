@@ -58,6 +58,12 @@ export default function AdminLayout({
                 <span>{item.label}</span>
               </Link>
             ))}
+            <Link
+              href={"../"}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors hover:text-gray-300 hover:bg-gray-800`}
+            >
+              sair
+            </Link>
           </nav>
         </div>
       </aside>

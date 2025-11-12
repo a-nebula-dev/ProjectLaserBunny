@@ -20,17 +20,19 @@ export default function ProductCard({
   image,
   category,
 }: ProductCardProps) {
+  // Use the image from props (from DB), fallback to default if empty
+  const productImage = image && image.trim() ? image : "/default-image.jpg";
+
   return (
     <Link href={`/products/${encodeURIComponent(id)}`}>
       <div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-primaria/10 cursor-pointer">
         <div className="relative aspect-square overflow-hidden bg-geral">
           <Image
             urlEndpoint="https://ik.imagekit.io/NebulaDev"
-            src="/default-image.jpg"
-            alt="Studio a laser coelho"
-            width={50}
-            height={50}
-            className="object-contain w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16"
+            src={productImage}
+            alt={name}
+            fill
+            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
             priority
           />
           <div className="absolute top-3 right-3 bg-secondaria text-primaria text-xs font-semibold px-3 py-1 rounded-full">

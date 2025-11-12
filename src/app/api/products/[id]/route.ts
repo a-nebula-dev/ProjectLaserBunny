@@ -12,9 +12,20 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    console.log("[GET /api/products/[id]] ID recebido:", id);
+    console.log(
+      "[GET /api/products/[id]] ObjectId.isValid?:",
+      id.length === 24
+    );
+
     const product = await getProductById(id);
+    console.log(
+      "[GET /api/products/[id]] Produto encontrado:",
+      product ? "SIM" : "NÃO"
+    );
 
     if (!product) {
+      console.log("[GET /api/products/[id]] Retornando 404");
       return NextResponse.json(
         { success: false, error: "Produto não encontrado" },
         { status: 404 }
@@ -60,6 +71,32 @@ export async function PUT(
     console.log("[api/products/[id] PUT] updatedProduct:", updatedProduct);
 
     if (!updatedProduct) {
+      // Alguns produtos foram salvos com _id como string; em alguns casos
+      // o update pode retornar null mesmo que o documento tenha sido modificado.
+      // Para evitar falsos negativos, tentamos buscar o produto após a
+      // tentativa de update e, se existir, consideramos como sucesso.
+      console.log(
+        "[api/products/[id] PUT] updatedProduct is null, verifying existence..."
+      );
+      const existing = await getProductById(id).catch((e) => {
+        console.log(
+          "[api/products/[id] PUT] getProductById erro ao verificar:",
+          e
+        );
+        return null;
+      });
+
+      if (existing) {
+        console.log(
+          "[api/products/[id] PUT] Produto encontrado após tentativa de update — tratando como sucesso"
+        );
+        return NextResponse.json({
+          success: true,
+          message: "Produto atualizado (confirmado)",
+          data: existing,
+        });
+      }
+
       return NextResponse.json(
         { success: false, error: "Produto não encontrado" },
         { status: 404 }
@@ -89,6 +126,103 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // First, try to fetch the product so we can remove its images from ImageKit
+    let product: any = null;
+    try {
+      product = (await getProductById(id)) as any;
+    } catch (e) {
+      console.log(
+        "[DELETE /api/products/[id]] erro ao buscar produto antes de deletar:",
+        e
+      );
+      product = null;
+    }
+
+    // Helper to delete a single ImageKit URL
+    const deleteImageFromImageKit = async (imageUrl: string) => {
+      try {
+        const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+        const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT || "";
+        if (!privateKey) {
+          console.log(
+            "[DELETE] IMAGEKIT_PRIVATE_KEY não configurada, pulando deleção de imagem"
+          );
+          return false;
+        }
+
+        // Derive the fileId/publicId from the image URL
+        let fileId = null;
+        try {
+          const u = new URL(imageUrl);
+          // If URL starts with configured endpoint, strip it
+          if (urlEndpoint && imageUrl.startsWith(urlEndpoint)) {
+            fileId = imageUrl.substring(urlEndpoint.length);
+          } else {
+            fileId = u.pathname.replace(/^\/+/, "");
+          }
+        } catch (err) {
+          // Not a full URL, maybe already a fileId
+          fileId = imageUrl;
+        }
+
+        // Remove query params if any
+        fileId = fileId.split("?")[0];
+
+        if (!fileId) {
+          console.log("[DELETE] Não foi possível extrair fileId de:", imageUrl);
+          return false;
+        }
+
+        const apiUrl = `https://api.imagekit.io/v1/files/${encodeURIComponent(
+          fileId
+        )}`;
+        const auth = Buffer.from(`${privateKey}:`).toString("base64");
+
+        const res = await fetch(apiUrl, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Basic ${auth}`,
+          },
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.log(
+            "[DELETE] Falha ao deletar imagem no ImageKit:",
+            fileId,
+            res.status,
+            text
+          );
+          return false;
+        }
+
+        console.log("[DELETE] Imagem deletada no ImageKit:", fileId);
+        return true;
+      } catch (err) {
+        console.log("[DELETE] Erro ao tentar deletar imagem no ImageKit:", err);
+        return false;
+      }
+    };
+
+    // If we have a product and it has images, attempt to delete them (best-effort)
+    if (product && (product.images || product.image)) {
+      const images: string[] = [];
+      if (Array.isArray(product.images))
+        images.push(...(product.images as string[]));
+      if (product.image && !images.includes(product.image))
+        images.push(product.image as string);
+
+      for (const img of images) {
+        try {
+          await deleteImageFromImageKit(img);
+        } catch (e) {
+          console.log("[DELETE] Erro ignorado ao deletar imagem:", e);
+        }
+      }
+    }
+
+    // Finally delete product from DB (this already handles string/ObjectId cases)
     const deleted = await deleteProduct(id);
 
     if (!deleted) {

@@ -8,13 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/lib/cart-store";
 import {
   ShoppingCart,
-  Heart,
   CreditCard,
   Smartphone,
   Receipt,
-  Shield,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import Footer from "@/components/Footer/Footer";
+import ProductCard from "@/components/ProductCard/ProductCard";
 import type { ProductDB } from "@/types/product";
 
 export default function ProductDetailPage({
@@ -29,8 +30,8 @@ export default function ProductDetailPage({
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<ProductDB | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [similarProducts, setSimilarProducts] = useState<ProductDB[]>([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -38,13 +39,39 @@ export default function ProductDetailPage({
         const response = await fetch(`/api/products/${productId}`);
         if (response.ok) {
           const data = await response.json();
-          setProduct(data.data);
+          const fetchedProduct = data.data;
+          setProduct(fetchedProduct);
+
+          // Fetch similar products (same category)
+          try {
+            const allProductsResponse = await fetch("/api/products");
+            if (allProductsResponse.ok) {
+              const allProductsData = await allProductsResponse.json();
+              const products = allProductsData.data || [];
+
+              // Filter products from same category, exclude current product, limit to 4
+              const similar = products
+                .filter(
+                  (p: ProductDB) =>
+                    p.category === fetchedProduct.category &&
+                    ((p as any).id || (p as any)._id) !== productId
+                )
+                .slice(0, 4);
+
+              setSimilarProducts(similar);
+            }
+          } catch (err) {
+            console.error(
+              "[Product Detail] Error fetching similar products:",
+              err
+            );
+          }
         } else {
           toast.error("Produto não encontrado");
           router.push("/products");
         }
       } catch (error) {
-        console.error("[v0] Error fetching product:", error);
+        console.error("[Product Detail] Error fetching product:", error);
         toast.error("Erro ao carregar produto");
       } finally {
         setLoading(false);
@@ -104,12 +131,32 @@ export default function ProductDetailPage({
   const pixSavings = product.price - pixPrice;
   const boletoSavings = product.price - boletoPrice;
 
-  // Mock multiple images (in real app, product would have multiple images)
-  const productImages = [product.image, product.image, product.image];
+  // Use product.images if available, fallback to product.image
+  const productImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.image];
+
+  // Validate selected image index
+  const currentImageIndex = Math.min(
+    selectedImageIndex,
+    productImages.length - 1
+  );
+  const currentImage =
+    productImages[currentImageIndex] || product.image || "/placeholder.svg";
 
   return (
     <div className="min-h-screen bg-geral">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back to list button */}
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-primaria hover:text-secondaria font-medium mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Voltar
+        </button>
+
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-primaria mb-2">
             {product.name}
@@ -126,21 +173,19 @@ export default function ProductDetailPage({
               {productImages.map((img, index) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedImage(index)}
+                  onClick={() => setSelectedImageIndex(index)}
                   className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedImage === index
-                      ? "border-secondaria shadow-md"
+                    currentImageIndex === index
+                      ? "border-secondaria shadow-md scale-105"
                       : "border-primaria/20 hover:border-primaria/40"
                   }`}
                 >
                   <Image
                     urlEndpoint="https://ik.imagekit.io/NebulaDev"
-                    src="/laserBunnyLogo.png"
-                    alt="Studio a laser coelho"
-                    width={50}
-                    height={50}
-                    className="object-contain w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16"
-                    priority
+                    src={img}
+                    alt={`${product.name} - Imagem ${index + 1}`}
+                    fill
+                    className="object-cover"
                   />
                 </button>
               ))}
@@ -148,23 +193,14 @@ export default function ProductDetailPage({
 
             {/* Main image */}
             <div className="flex-1 relative">
-              <button
-                onClick={() => setIsFavorite(!isFavorite)}
-                className="absolute top-4 right-4 z-10 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all"
-              >
-                <Heart
-                  className={`w-6 h-6 transition-colors ${
-                    isFavorite
-                      ? "fill-red-500 text-red-500"
-                      : "text-primaria/60"
-                  }`}
-                />
-              </button>
               <div className="aspect-square rounded-lg overflow-hidden bg-white shadow-lg border border-primaria/10">
-                <img
-                  src={productImages[selectedImage] || "/placeholder.svg"}
+                <Image
+                  urlEndpoint="https://ik.imagekit.io/NebulaDev"
+                  src={currentImage}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  priority
                 />
               </div>
             </div>
@@ -269,25 +305,7 @@ export default function ProductDetailPage({
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 COMPRAR
               </Button>
-
-              <div className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-semibold whitespace-nowrap">
-                <Shield className="w-4 h-4" />
-                <div className="leading-tight">
-                  <div>LOJA 100%</div>
-                  <div>SEGURA</div>
-                </div>
-              </div>
             </div>
-
-            {/* WhatsApp button */}
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full border-primaria/30 text-primaria hover:bg-primaria/5 font-medium bg-transparent"
-            >
-              <Smartphone className="w-5 h-5 mr-2" />
-              Compre Pelo WhatsApp
-            </Button>
 
             {/* Product description */}
             {product.description && (
@@ -322,7 +340,31 @@ export default function ProductDetailPage({
             )}
           </div>
         </div>
+
+        {/* Similar Products Section */}
+        {similarProducts.length > 0 && (
+          <div className="mt-16 pt-12 border-t border-primaria/10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-primaria mb-8">
+              Produtos Relacionados
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {similarProducts.map((p) => (
+                <ProductCard
+                  key={(p as any).id || (p as any)._id}
+                  id={(p as any).id || (p as any)._id}
+                  name={(p as any).name || "Produto"}
+                  price={Number((p as any).price) || 0}
+                  image={(p as any).image || "/default-image.jpg"}
+                  category={(p as any).category || ""}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

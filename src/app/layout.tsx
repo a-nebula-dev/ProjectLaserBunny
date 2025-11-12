@@ -4,6 +4,7 @@ import { ptBR } from "@clerk/localizations";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppNavbar from "@/components/AppNavbar";
+import { ClerkErrorBoundary } from "@/components/ClerkErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,17 +30,46 @@ export default function RootLayout({
     typeof window !== "undefined" ? window.location.pathname : "";
   // Alternativa SSR: usePathname() só funciona em client components
   const showNavbar = !pathname.startsWith("/admin");
+
+  // Explicitly pass known Clerk env values to the provider. In production
+  // Clerk may not be able to auto-detect configuration and can timeout
+  // while trying to load its JS. Supplying the publishable key / frontend
+  // api prevents that.
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  // If you use a custom proxy or host for Clerk's JS (seen in the console as
+  // https://clerk.artelasercoelho.com/...), set NEXT_PUBLIC_CLERK_JS_URL or
+  // NEXT_PUBLIC_CLERK_PROXY_URL in your env. We prefer an explicit clerkJSUrl
+  // so the SDK doesn't attempt auto-detection which can fail in production
+  // or with custom proxies.
+  const clerkJSUrlEnv = process.env.NEXT_PUBLIC_CLERK_JS_URL;
+  const clerkProxy = process.env.NEXT_PUBLIC_CLERK_PROXY_URL;
+  const clerkJSUrl =
+    clerkJSUrlEnv ||
+    (clerkProxy
+      ? `${clerkProxy.replace(
+          /\/+$/,
+          ""
+        )}/npm/@clerk/clerk-js@5/dist/clerk.browser.js`
+      : undefined);
+
   return (
-    <ClerkProvider localization={ptBR}>
-      <html lang="pt-br">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {/* Navbar completa com Clerk */}
-          <AppNavbar />
-          {children}
-        </body>
-      </html>
+    <ClerkProvider
+      localization={ptBR}
+      publishableKey={publishableKey}
+      clerkJSUrl={clerkJSUrl}
+    >
+      <ClerkErrorBoundary>
+        <html lang="pt-br">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            {/* Navbar completa com Clerk */}
+            <AppNavbar />
+            {children}
+          </body>
+        </html>
+      </ClerkErrorBoundary>
     </ClerkProvider>
   );
 }

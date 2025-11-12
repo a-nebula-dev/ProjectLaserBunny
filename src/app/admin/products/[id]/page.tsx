@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import ImageKitMultiUpload from "@/components/ImageKitMultiUpload/ImageKitMultiUpload";
+import { Toaster, toast } from "sonner";
 import type { Category, ProductDB } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
@@ -41,9 +42,13 @@ export default function ProductFormPage() {
 
         // Fetch product if editing
         if (isEditing) {
+          console.log("[DEBUG] Buscando produto com ID:", productId);
           const productRes = await fetch(`/api/products/${productId}`);
+          console.log("[DEBUG] Status da resposta GET:", productRes.status);
+
           if (productRes.ok) {
             const productData = await productRes.json();
+            console.log("[DEBUG] Dados recebidos:", productData);
             const product = productData.data;
             setFormData({
               name: product.name || "",
@@ -54,6 +59,10 @@ export default function ProductFormPage() {
               images: product.images || [],
               stock: product.stock || "",
             });
+          } else {
+            const errorData = await productRes.json();
+            console.error("[ERROR] Erro ao buscar produto:", errorData);
+            toast.error(errorData.error || "Produto não encontrado");
           }
         }
       } catch (error) {
@@ -106,13 +115,17 @@ export default function ProductFormPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        router.push("/admin/products");
+        toast.success(data.message || "Produto salvo com sucesso!");
+        setTimeout(() => router.push("/admin/products"), 1000);
       } else {
-        const error = await res.json();
-        console.error("Erro ao salvar:", error);
+        toast.error(data.error || "Erro ao salvar produto");
+        console.error("Erro ao salvar:", data);
       }
     } catch (error) {
+      toast.error("Erro ao salvar produto");
       console.error("Erro ao salvar produto:", error);
     } finally {
       setSubmitting(false);
@@ -262,6 +275,7 @@ export default function ProductFormPage() {
           </div>
         </form>
       </Card>
+      <Toaster />
     </div>
   );
 }

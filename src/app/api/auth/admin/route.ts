@@ -81,15 +81,12 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const authCookie = request.cookies.get("admin_auth");
 
-  if (authCookie?.value === "true") {
-    return NextResponse.json({
-      success: true,
-      authenticated: true,
-    });
-  }
+  const authenticated = authCookie?.value === "true";
 
+  // Retornar resposta padronizada: success + data
   return NextResponse.json({
     success: true,
-    authenticated: false,
+    authenticated,
+    data: { authenticated },
   });
 }

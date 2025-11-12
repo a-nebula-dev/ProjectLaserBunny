@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Toaster, toast } from "sonner";
 import type { Category } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
@@ -95,12 +96,14 @@ export default function CategoryFormPage() {
       console.log("[DEBUG] Resposta:", data);
 
       if (res.ok) {
-        console.log("[DEBUG] Sucesso, redirecionando...");
-        router.push("/admin/categories");
+        toast.success(data.message || "Categoria salva com sucesso!");
+        setTimeout(() => router.push("/admin/categories"), 1000);
       } else {
+        toast.error(data.error || "Erro ao salvar categoria");
         console.error("[ERROR] Erro na resposta:", data);
       }
     } catch (error) {
+      toast.error("Erro ao salvar categoria");
       console.error("[ERROR] Erro ao salvar categoria:", error);
     } finally {
       setSubmitting(false);
@@ -205,6 +208,7 @@ export default function CategoryFormPage() {
           </div>
         </form>
       </Card>
+      <Toaster />
     </div>
   );
 }

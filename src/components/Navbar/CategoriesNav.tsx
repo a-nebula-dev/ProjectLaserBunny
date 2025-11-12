@@ -61,7 +61,7 @@ export default function CategoriesNav({
         <li key={`${category._id}-${i}`} className="flex-shrink-0">
           <Link
             href={`/products?category=${category.slug}`}
-            className="text-secondaria hover:text-white font-medium transition-all duration-300 text-xs sm:text-sm lg:text-base whitespace-nowrap"
+            className="text-secondaria hover:text-white transition-all duration-300 text-xs sm:text-sm lg:text-base whitespace-nowrap font-bold"
           >
             {category.name}
           </Link>

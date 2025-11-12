@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Toaster, toast } from "sonner";
 import type { Section } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
@@ -90,10 +91,17 @@ export default function SectionFormPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        router.push("/admin/sections");
+        toast.success(data.message || "Seção salva com sucesso!");
+        setTimeout(() => router.push("/admin/sections"), 1000);
+      } else {
+        toast.error(data.error || "Erro ao salvar seção");
+        console.error("Erro ao salvar:", data);
       }
     } catch (error) {
+      toast.error("Erro ao salvar seção");
       console.error("Erro ao salvar seção:", error);
     } finally {
       setSubmitting(false);
@@ -231,6 +239,7 @@ export default function SectionFormPage() {
           </div>
         </form>
       </Card>
+      <Toaster />
     </div>
   );
 }

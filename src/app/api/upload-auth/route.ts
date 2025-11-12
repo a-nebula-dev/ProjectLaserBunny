@@ -4,6 +4,7 @@ import crypto from "crypto";
 /**
  * Endpoint para autenticação de upload direto no ImageKit
  * Retorna os parâmetros necessários para fazer upload direto do navegador
+ * Resposta padronizada: { success, data?, message?, error? }
  */
 export async function GET(request: NextRequest) {
   try {
@@ -35,11 +36,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        token: token,
-        signature: signature,
-        expire: expire,
-        publicKey: publicKey,
-        urlEndpoint: urlEndpoint,
+        success: true,
+        data: {
+          token,
+          signature,
+          expire,
+          publicKey,
+          urlEndpoint,
+        },
       },
       { status: 200 }
     );

@@ -17,17 +17,52 @@ export async function getCollection(
 export async function getAllProducts() {
   const collection = await getCollection("products");
   const docs = await collection.find({}).toArray();
-  return docs.map((d) => ({ ...d, id: d._id?.toString() }));
+  console.log("[getAllProducts] Total de produtos:", docs.length);
+  const mapped = docs.map((d) => {
+    const result = { ...d, id: d._id?.toString() };
+    console.log("[getAllProducts] Mapeando:", {
+      _id: d._id?.toString(),
+      name: d.name,
+      id: result.id,
+    });
+    return result;
+  });
+  return mapped;
 }
 
 export async function getProductById(id: string) {
+  console.log("[getProductById] ID recebido:", id);
+  console.log("[getProductById] Validando ObjectId...");
+
   if (!ObjectId.isValid(id)) {
+    console.log("[getProductById] ID INVÁLIDO!");
     throw new Error("ID inválido");
   }
+
+  console.log("[getProductById] ID válido, buscando no banco...");
   const collection = await getCollection("products");
-  const doc = await collection.findOne({ _id: new ObjectId(id) });
+
+  // Tenta primeiro como ObjectId
+  let doc = await collection.findOne({ _id: new ObjectId(id) } as any);
+
+  // Se não encontrar e o ID for uma string válida, tenta como string
+  if (!doc) {
+    console.log(
+      "[getProductById] Não encontrado como ObjectId, tentando como string..."
+    );
+    doc = await collection.findOne({ _id: id } as any);
+  }
+
+  console.log(
+    "[getProductById] Resultado:",
+    doc ? "encontrado" : "não encontrado"
+  );
+
   if (!doc) return null;
-  return { ...doc, id: doc._id?.toString() };
+
+  // Se o _id for uma string, usa como está; se for ObjectId, converte
+  const idStr = typeof doc._id === "string" ? doc._id : doc._id?.toString();
+  return { ...doc, id: idStr, _id: doc._id };
 }
 
 export async function createProduct(productData: any) {
@@ -48,26 +83,62 @@ export async function createProduct(productData: any) {
 }
 
 export async function updateProduct(id: string, updateData: any) {
+  console.log("[updateProduct] ID recebido:", id);
+  console.log("[updateProduct] Validando ObjectId...");
   if (!ObjectId.isValid(id)) {
+    console.log("[updateProduct] ID INVÁLIDO!");
     throw new Error("ID inválido");
   }
+
   const collection = await getCollection("products");
-  const result = await collection.findOneAndUpdate(
-    { _id: new ObjectId(id) },
+
+  // Tenta primeiro como ObjectId
+  let result: any = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) } as any,
     { $set: { ...updateData, updatedAt: new Date() } },
     { returnDocument: "after" }
   );
+
+  // Se não encontrar como ObjectId, tenta como string
+  if (!result?.value) {
+    console.log(
+      "[updateProduct] Não encontrado como ObjectId, tentando como string..."
+    );
+    result = await collection.findOneAndUpdate(
+      { _id: id } as any,
+      { $set: { ...updateData, updatedAt: new Date() } },
+      { returnDocument: "after" }
+    );
+  }
+
   if (!result || !result.value) return null;
-  const doc = result.value;
-  return { ...doc, id: doc._id?.toString() };
+  const doc: any = result.value;
+
+  // Se o _id for uma string, usa como está; se for ObjectId, converte
+  const idStr = typeof doc._id === "string" ? doc._id : doc._id?.toString();
+  return { ...doc, id: idStr, _id: doc._id };
 }
 
 export async function deleteProduct(id: string) {
+  console.log("[deleteProduct] ID recebido:", id);
+
   if (!ObjectId.isValid(id)) {
-    throw new Error("ID inválido");
+    console.log("[deleteProduct] ID INVÁLIDO, tentando como string...");
   }
+
   const collection = await getCollection("products");
-  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+  // Tenta primeiro como ObjectId
+  let result = await collection.deleteOne({ _id: new ObjectId(id) } as any);
+
+  // Se não deletou nada como ObjectId, tenta como string
+  if (result.deletedCount === 0) {
+    console.log(
+      "[deleteProduct] Nenhum documento deletado como ObjectId, tentando como string..."
+    );
+    result = await collection.deleteOne({ _id: id } as any);
+  }
+
   return result.deletedCount > 0;
 }
 
@@ -82,7 +153,9 @@ export async function getCategoryById(id: string) {
     throw new Error("ID inválido");
   }
   const collection = await getCollection("categories");
-  return collection.findOne({ _id: new ObjectId(id) });
+  const doc = await collection.findOne({ _id: new ObjectId(id) });
+  if (!doc) return null;
+  return { ...doc, id: doc._id?.toString() };
 }
 
 export async function createCategory(categoryData: any) {
@@ -103,12 +176,14 @@ export async function updateCategory(id: string, updateData: any) {
     throw new Error("ID inválido");
   }
   const collection = await getCollection("categories");
-  const result = await collection.findOneAndUpdate(
-    { _id: new ObjectId(id) },
+  const result: any = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) } as any,
     { $set: { ...updateData, updatedAt: new Date() } },
     { returnDocument: "after" }
   );
-  return result?.value;
+  if (!result || !result.value) return null;
+  const doc: any = result.value;
+  return { ...doc, id: doc._id?.toString() };
 }
 
 export async function deleteCategory(id: string) {
@@ -131,7 +206,9 @@ export async function getSectionById(id: string) {
     throw new Error("ID inválido");
   }
   const collection = await getCollection("sections");
-  return collection.findOne({ _id: new ObjectId(id) });
+  const doc = await collection.findOne({ _id: new ObjectId(id) });
+  if (!doc) return null;
+  return { ...doc, id: doc._id?.toString() };
 }
 
 export async function createSection(sectionData: any) {
@@ -152,12 +229,14 @@ export async function updateSection(id: string, updateData: any) {
     throw new Error("ID inválido");
   }
   const collection = await getCollection("sections");
-  const result = await collection.findOneAndUpdate(
-    { _id: new ObjectId(id) },
+  const result: any = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id) } as any,
     { $set: { ...updateData, updatedAt: new Date() } },
     { returnDocument: "after" }
   );
-  return result?.value;
+  if (!result || !result.value) return null;
+  const doc: any = result.value;
+  return { ...doc, id: doc._id?.toString() };
 }
 
 export async function deleteSection(id: string) {
