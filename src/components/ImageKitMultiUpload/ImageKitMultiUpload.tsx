@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
@@ -69,7 +68,8 @@ export default function ImageKitMultiUpload({
     let authParams;
     try {
       authParams = await getAuthParams();
-    } catch (err) {
+    } catch (authError) {
+      console.error("Erro ao autenticar upload do ImageKit:", authError);
       setError("Erro ao autenticar upload.");
       setLoading(false);
       return;

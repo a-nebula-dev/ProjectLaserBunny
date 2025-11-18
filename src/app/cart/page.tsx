@@ -6,10 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function CartPage() {
-  // const router = useRouter();
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
 
@@ -65,9 +64,11 @@ export default function CartPage() {
                 <div className="flex gap-4">
                   {/* Product Image */}
                   <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-geral flex-shrink-0 shadow-sm">
-                    <img
+                    <Image
                       src={item.image || "/placeholder.svg"}
                       alt={item.name}
+                      width={128}
+                      height={128}
                       className="w-full h-full object-cover"
                     />
                   </div>

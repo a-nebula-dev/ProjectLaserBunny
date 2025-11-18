@@ -28,11 +28,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname =
-    typeof window !== "undefined" ? window.location.pathname : "";
-  // Alternativa SSR: usePathname() só funciona em client components
-  const showNavbar = !pathname.startsWith("/admin");
-
   // Explicitly pass known Clerk env values to the provider. In production
   // Clerk may not be able to auto-detect configuration and can timeout
   // while trying to load its JS. Supplying the publishable key / frontend

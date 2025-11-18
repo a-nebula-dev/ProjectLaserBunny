@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllSections, createSection } from "@/lib/db-operations";
 
 // GET - Buscar todas as seções
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const sections = await getAllSections();
 

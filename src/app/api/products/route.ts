@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllProducts, createProduct } from "@/lib/db-operations";
 
 // GET - Buscar todos os produtos
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const products = await getAllProducts();
 

@@ -7,6 +7,7 @@ export interface Product {
   category: string;
   description?: string;
   stock?: number;
+  weight?: number; // Peso em kg para cálculo de frete
 }
 
 export interface CartItem extends Product {
@@ -21,6 +22,7 @@ export interface ProductDB {
   category: string;
   description?: string;
   stock?: number;
+  weight?: number;
   details?: string[];
   createdAt?: Date;
   updatedAt?: Date;

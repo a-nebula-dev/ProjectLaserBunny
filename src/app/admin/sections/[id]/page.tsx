@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Toaster, toast } from "sonner";
-import type { Section } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
 export default function SectionFormPage() {
@@ -27,31 +26,34 @@ export default function SectionFormPage() {
   });
 
   useEffect(() => {
-    if (isEditing) {
-      fetchSection();
-    }
-  }, [isEditing, sectionId]);
-
-  const fetchSection = async () => {
-    try {
-      const res = await fetch(`/api/sections/${sectionId}`);
-      if (res.ok) {
-        const data = await res.json();
-        const section = data.data;
-        setFormData({
-          title: section.title || "",
-          slug: section.slug || "",
-          description: section.description || "",
-          image: section.image || "",
-          order: section.order || "",
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao carregar seção:", error);
-    } finally {
+    if (!isEditing) {
       setLoading(false);
+      return;
     }
-  };
+
+    const fetchSection = async () => {
+      try {
+        const res = await fetch(`/api/sections/${sectionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const section = data.data;
+          setFormData({
+            title: section.title || "",
+            slug: section.slug || "",
+            description: section.description || "",
+            image: section.image || "",
+            order: section.order || "",
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao carregar seção:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSection();
+  }, [isEditing, sectionId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

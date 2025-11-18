@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllCategories, createCategory } from "@/lib/db-operations";
 
 // GET - Buscar todas as categorias
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const categories = await getAllCategories();
 

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import ImageKitMultiUpload from "@/components/ImageKitMultiUpload/ImageKitMultiUpload";
 import { Toaster, toast } from "sonner";
-import type { Category, ProductDB } from "@/types/product";
+import type { Category } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
 export default function ProductFormPage() {

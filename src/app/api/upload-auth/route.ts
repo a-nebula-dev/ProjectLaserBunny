@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import crypto from "crypto";
 
 /**
@@ -6,7 +6,7 @@ import crypto from "crypto";
  * Retorna os parâmetros necessários para fazer upload direto do navegador
  * Resposta padronizada: { success, data?, message?, error? }
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
     const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;

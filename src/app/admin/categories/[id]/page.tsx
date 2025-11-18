@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Toaster, toast } from "sonner";
-import type { Category } from "@/types/product";
 import { ArrowLeft } from "lucide-react";
 
 export default function CategoryFormPage() {
@@ -25,29 +24,31 @@ export default function CategoryFormPage() {
   });
 
   useEffect(() => {
-    if (isEditing) {
-      fetchCategory();
+    if (!isEditing) {
+      return;
     }
-  }, [isEditing, categoryId]);
 
-  const fetchCategory = async () => {
-    try {
-      const res = await fetch(`/api/categories/${categoryId}`);
-      if (res.ok) {
-        const data = await res.json();
-        const category = data.data;
-        setFormData({
-          name: category.name || "",
-          slug: category.slug || "",
-          description: category.description || "",
-        });
+    const fetchCategory = async () => {
+      try {
+        const res = await fetch(`/api/categories/${categoryId}`);
+        if (res.ok) {
+          const data = await res.json();
+          const category = data.data;
+          setFormData({
+            name: category.name || "",
+            slug: category.slug || "",
+            description: category.description || "",
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao carregar categoria:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Erro ao carregar categoria:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchCategory();
+  }, [isEditing, categoryId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

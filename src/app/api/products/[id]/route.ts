@@ -163,7 +163,7 @@ export async function DELETE(
               return parsed.pathname.replace(/^\/+/, "");
             }
             return parsed.pathname.replace(/^\/+/, "");
-          } catch (err) {
+          } catch {
             return imageUrl.replace(/^\/+/, "");
           }
         };
