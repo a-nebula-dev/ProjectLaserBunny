@@ -1,5 +1,8 @@
 import clientPromise from "./mongodb";
 import { ObjectId, Db, Collection } from "mongodb";
+import type { ProductDB } from "@/types/product";
+
+type ProductRecord = ProductDB & { _id: ObjectId | string };
 
 export async function getDatabase(): Promise<Db> {
   const client = await clientPromise;
@@ -30,7 +33,7 @@ export async function getAllProducts() {
   return mapped;
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(id: string): Promise<ProductRecord | null> {
   console.log("[getProductById] ID recebido:", id);
   console.log("[getProductById] Validando ObjectId...");
 
@@ -43,14 +46,16 @@ export async function getProductById(id: string) {
   const collection = await getCollection("products");
 
   // Tenta primeiro como ObjectId
-  let doc = await collection.findOne({ _id: new ObjectId(id) } as any);
+  let doc = (await collection.findOne({ _id: new ObjectId(id) } as any)) as
+    | ProductRecord
+    | null;
 
   // Se não encontrar e o ID for uma string válida, tenta como string
   if (!doc) {
     console.log(
       "[getProductById] Não encontrado como ObjectId, tentando como string..."
     );
-    doc = await collection.findOne({ _id: id } as any);
+    doc = (await collection.findOne({ _id: id } as any)) as ProductRecord | null;
   }
 
   console.log(

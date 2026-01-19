@@ -12,11 +12,6 @@ export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } =
     useCartStore();
 
-  const handleCheckout = () => {
-    // Implement checkout logic here
-    alert("Funcionalidade de checkout em desenvolvimento!");
-  };
-
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-geral flex items-center justify-center">
@@ -181,13 +176,14 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="w-full mb-3 bg-secondaria text-primaria hover:bg-secondaria/90 font-semibold"
-                onClick={handleCheckout}
-              >
-                Finalizar Compra
-              </Button>
+              <Link href="/checkout">
+                <Button
+                  size="lg"
+                  className="w-full mb-3 bg-secondaria text-primaria hover:bg-secondaria/90 font-semibold"
+                >
+                  Finalizar Compra
+                </Button>
+              </Link>
 
               <Link href="/products">
                 <Button

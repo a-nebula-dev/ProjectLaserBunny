@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 import { useCartStore } from "@/lib/cart-store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -36,6 +43,51 @@ interface ShippingOption {
   price: number;
 }
 
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+);
+
+function PaymentForm({ onSuccess }: { onSuccess: () => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [confirming, setConfirming] = useState(false);
+
+  const handleConfirmPayment = async () => {
+    if (!stripe || !elements) {
+      toast.error("Stripe não está pronto. Tente novamente.");
+      return;
+    }
+
+    setConfirming(true);
+    const result = await stripe.confirmPayment({
+      elements,
+      redirect: "if_required",
+    });
+
+    if (result.error) {
+      toast.error(result.error.message || "Erro ao confirmar pagamento");
+    } else {
+      toast.success("Pagamento confirmado!");
+      onSuccess();
+    }
+    setConfirming(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <PaymentElement options={{ layout: "accordion" }} />
+      <Button
+        className="w-full bg-green-600 hover:bg-green-700"
+        size="lg"
+        disabled={confirming}
+        onClick={handleConfirmPayment}
+      >
+        {confirming ? "Processando..." : "Confirmar pagamento"}
+      </Button>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCartStore();
@@ -59,6 +111,11 @@ export default function CheckoutPage() {
     "card"
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(
+    null
+  );
+  const [saleId, setSaleId] = useState<string | null>(null);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
 
   const cartIsEmpty = items.length === 0;
 
@@ -121,6 +178,15 @@ export default function CheckoutPage() {
   const orderShipping = selectedShipping?.price ?? 0;
   const orderTotal = orderSubtotal + orderShipping;
 
+  const handlePaymentSuccess = () => {
+    clearCart();
+    const params = new URLSearchParams();
+    if (saleId) params.set("saleId", saleId);
+    if (paymentIntentId) params.set("paymentIntentId", paymentIntentId);
+    const url = `/checkout/success${params.toString() ? `?${params.toString()}` : ""}`;
+    router.push(url);
+  };
+
   const handleSubmitOrder = async () => {
     if (cartIsEmpty) {
       toast.error("Seu carrinho está vazio");
@@ -157,24 +223,35 @@ export default function CheckoutPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error("Falha ao criar pedido");
-      }
-
       const data = await response.json();
 
-      if (paymentMethod === "card" && data.clientSecret) {
-        toast.success(
-          "Intenção de pagamento criada. Em breve integraremos o Stripe."
-        );
-      } else if (paymentMethod === "pix" && data.pix) {
-        toast.success("Cobrança Pix preparada. Em breve exibiremos o QR Code.");
+      if (!response.ok || data?.success === false) {
+        const message = data?.error || "Falha ao criar pedido";
+        throw new Error(message);
+      }
+
+      setSaleId(data?.saleId ?? null);
+      setPaymentIntentId(data?.paymentIntentId ?? null);
+
+      if (paymentMethod === "card") {
+        if (!data?.clientSecret) {
+          throw new Error("Stripe não retornou clientSecret");
+        }
+        setStripeClientSecret(data.clientSecret);
+        toast.success("Pagamento iniciado. Preencha os dados do cartão abaixo.");
       } else {
-        toast.success("Pedido registrado. Processamento em andamento.");
+        toast.success("Pedido registrado. Processando pagamento.");
+        clearCart();
+        const params = new URLSearchParams();
+        if (data?.saleId) params.set("saleId", data.saleId);
+        if (data?.paymentIntentId) params.set("paymentIntentId", data.paymentIntentId);
+        router.push(`/checkout/success${params.toString() ? `?${params.toString()}` : ""}`);
       }
     } catch (error) {
       console.error("Erro ao enviar pedido", error);
-      toast.error("Erro ao processar seu checkout");
+      const message =
+        error instanceof Error ? error.message : "Erro ao processar seu checkout";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -463,48 +540,56 @@ export default function CheckoutPage() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   variant={paymentMethod === "card" ? "default" : "outline"}
-                  onClick={() => setPaymentMethod("card")}
+                  onClick={() => {
+                    setPaymentMethod("card");
+                  }}
                 >
                   Cartões (Stripe)
                 </Button>
                 <Button
                   variant={paymentMethod === "pix" ? "default" : "outline"}
-                  onClick={() => setPaymentMethod("pix")}
+                  onClick={() => {
+                    setPaymentMethod("pix");
+                    setStripeClientSecret(null);
+                    setSaleId(null);
+                    setPaymentIntentId(null);
+                  }}
                 >
                   Pix
                 </Button>
                 <Button
                   variant={paymentMethod === "other" ? "default" : "outline"}
-                  onClick={() => setPaymentMethod("other")}
+                  onClick={() => {
+                    setPaymentMethod("other");
+                    setStripeClientSecret(null);
+                    setSaleId(null);
+                    setPaymentIntentId(null);
+                  }}
                 >
                   Outros
                 </Button>
               </div>
 
               {paymentMethod === "card" && (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <p className="text-sm text-primaria/70">
-                    Aceitamos todas as principais bandeiras via Stripe. Seus
-                    dados são processados em ambiente seguro.
+                    Aceitamos todas as principais bandeiras via Stripe. Dados
+                    processados em ambiente seguro.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="card-holder">
-                        Nome impresso no cartão
-                      </Label>
-                      <Input
-                        id="card-holder"
-                        placeholder="Nome exatamente como aparece"
-                      />
+                  {stripeClientSecret ? (
+                    <Elements
+                      stripe={stripePromise}
+                      options={{ clientSecret: stripeClientSecret }}
+                      key={stripeClientSecret}
+                    >
+                      <PaymentForm onSuccess={handlePaymentSuccess} />
+                    </Elements>
+                  ) : (
+                    <div className="rounded-md border border-dashed border-primaria/20 p-4 text-sm text-primaria/70">
+                      Clique em &quot;Finalizar pedido&quot; para gerar o pagamento e
+                      liberar o formulário do cartão.
                     </div>
-                    <div>
-                      <Label htmlFor="card-document">CPF do titular</Label>
-                      <Input id="card-document" placeholder="000.000.000-00" />
-                    </div>
-                  </div>
-                  <div className="rounded-md border border-dashed border-primaria/20 p-4 text-sm text-primaria/70">
-                    Em breve exibiremos o Stripe Payment Element aqui.
-                  </div>
+                  )}
                 </div>
               )}
 

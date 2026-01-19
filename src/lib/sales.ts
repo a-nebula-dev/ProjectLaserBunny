@@ -70,7 +70,11 @@ export async function updateSalePaymentStatus(
     note: metadata?.note as string | undefined,
   };
 
-  await collection.updateOne({ _id: new ObjectId(saleId) }, {
+  const query = ObjectId.isValid(saleId)
+    ? ({ _id: new ObjectId(saleId) } as any)
+    : ({ _id: saleId } as any);
+
+  await collection.updateOne(query, {
     $set: {
       "payment.status": status,
       ...(metadata ? { "payment.metadata": metadata } : {}),
@@ -78,4 +82,85 @@ export async function updateSalePaymentStatus(
     },
     $push: { "payment.history": historyEntry },
   } as any);
+}
+
+export async function getSaleById(saleId: string) {
+  const collection = await getCollection("sales");
+
+  // Accept both ObjectId and string ids
+  let query: any = { _id: saleId };
+  if (ObjectId.isValid(saleId)) {
+    query = { _id: new ObjectId(saleId) } as any;
+  }
+
+  const doc = await collection.findOne(query);
+  if (!doc) return null;
+
+  const idStr = typeof doc._id === "string" ? doc._id : doc._id?.toString();
+  return { ...doc, _id: idStr } as SaleRecord;
+}
+
+export async function listSales({
+  paymentStatus,
+  limit = 20,
+  offset = 0,
+}: {
+  paymentStatus?: PaymentStatus;
+  limit?: number;
+  offset?: number;
+}) {
+  const collection = await getCollection("sales");
+  const filter: any = {};
+  if (paymentStatus) {
+    filter["payment.status"] = paymentStatus;
+  }
+
+  const cursor = collection
+    .find(filter)
+    .sort({ createdAt: -1 })
+    .skip(offset)
+    .limit(limit);
+
+  const docs = await cursor.toArray();
+  const total = await collection.countDocuments(filter);
+
+  const mapped = docs.map((doc: any) => ({
+    ...doc,
+    _id: typeof doc._id === "string" ? doc._id : doc._id?.toString(),
+  })) as SaleRecord[];
+
+  return { data: mapped, total };
+}
+
+export async function updateSaleFulfillment(
+  saleId: string,
+  fulfillment: {
+    status?: SaleRecord["fulfillment"]["status"];
+    trackingCode?: string;
+    shippedAt?: Date;
+  }
+) {
+  const collection = await getCollection("sales");
+  const now = new Date();
+  const query = ObjectId.isValid(saleId)
+    ? ({ _id: new ObjectId(saleId) } as any)
+    : ({ _id: saleId } as any);
+
+  const set: any = {
+    updatedAt: now,
+  };
+
+  if (fulfillment.status) {
+    set["fulfillment.status"] = fulfillment.status;
+    if (fulfillment.status === "shipped") {
+      set["fulfillment.shippedAt"] = fulfillment.shippedAt || now;
+    }
+  }
+  if (fulfillment.trackingCode !== undefined) {
+    set["fulfillment.trackingCode"] = fulfillment.trackingCode;
+  }
+
+  await collection.updateOne(query, { $set: set });
+  const updated = await getSaleById(saleId);
+  return updated;
 }
