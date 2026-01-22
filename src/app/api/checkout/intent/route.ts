@@ -7,15 +7,6 @@ import type { PaymentMethod, SaleDraftInput, SaleItem } from "@/types/sale";
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-if (!stripeSecret) {
-  throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
-}
-
-const resolvedStripeSecret = stripeSecret;
-
-// Use account default API version; TypeScript for stripe v19 targets latest API typings.
-const stripe = new Stripe(resolvedStripeSecret);
-
 function toStripeAmount(value: number) {
   return Math.max(0, Math.round(value * 100));
 }
@@ -69,6 +60,16 @@ function buildShippingOptions(cep: string, items: SaleItem[]) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!stripeSecret) {
+      return NextResponse.json(
+        { success: false, error: "STRIPE_SECRET_KEY não configurada" },
+        { status: 500 }
+      );
+    }
+
+    // Use account default API version; TypeScript for stripe v19 targets latest API typings.
+    const stripe = new Stripe(stripeSecret);
+
     const body = await request.json();
 
     const { items, shipping, address, paymentMethod, userId } = body || {};
