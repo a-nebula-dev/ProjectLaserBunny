@@ -8,21 +8,17 @@ export const dynamic = "force-dynamic";
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-if (!stripeSecret) {
-  throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
-}
-
-if (!webhookSecret) {
-  throw new Error("STRIPE_WEBHOOK_SECRET is not set in environment variables");
-}
-
-const resolvedStripeSecret = stripeSecret;
-const resolvedWebhookSecret = webhookSecret;
-
-// Use account default API version; stripe types track the latest version.
-const stripe = new Stripe(resolvedStripeSecret);
-
 export async function POST(request: NextRequest) {
+  if (!stripeSecret || !webhookSecret) {
+    return NextResponse.json(
+      { error: "Stripe secrets não configuradas" },
+      { status: 500 }
+    );
+  }
+
+  // Use account default API version; stripe types track the latest version.
+  const stripe = new Stripe(stripeSecret);
+
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
@@ -40,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, resolvedWebhookSecret);
+    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err) {
     console.error("[stripe/webhook] signature verification failed", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
